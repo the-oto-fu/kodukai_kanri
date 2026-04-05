@@ -1,54 +1,82 @@
-import React, { useEffect, useState } from 'react';
-import { Button, Text, TextInput, View } from 'react-native';
-import { db } from '../db/database';
+import React, { useEffect, useState } from "react";
+import { Button, Text, TextInput, View } from "react-native";
+import { db } from "../db/database";
 
 export default function TopScreen() {
-  const [balance, setBalance] = useState<number>(0);
-  const [amount, setAmount] = useState('');
+  const [budget, setBudget] = useState(0);
+  const [tmpPayment, setTmpPayment] = useState("");
+  const [tmpName, setTmpName] = useState("");
+
+  // 現在日時に対応する年月をYYYY-MMの形で取得
+  // 要hook化
+  const getNowYearMonth = () => {
+    const now = new Date();
+    return now
+      .toLocaleDateString("ja-JP", {
+        year: "numeric",
+        month: "2-digit",
+      })
+      .replace("/", "-");
+  };
 
   const load = () => {
-    const budget = db.getFirstSync<any>('SELECT * FROM budget LIMIT 1');
-    if (!budget) {
-      setBalance(0);
-      return;
-    }
+    const nowYearMonth = getNowYearMonth();
+    // 現在日時に対応する収入を取得
+    const income = db.getFirstSync<any>(
+      "SELECT INCOME_PRICE FROM INCOME WHERE YEARMONTH = ?",
+      [nowYearMonth]
+    );
+    console.log(income);
+    // 要修正 incomeがnullなのでエラーになっている
+    const incomePrice = income.INCOME_PRICE ? income.INCOME_PRICE : 0;
 
-    const expenses = db.getAllSync<any>('SELECT * FROM expenses');
-    const totalExpense = expenses.reduce((sum, e) => sum + e.amount, 0);
+    // 固定費の合計を取得
+    // 要修正 PRICEカラムがないというエラー
+    const fixedCosts = db.getAllSync<any>("SELECT * FROM FIXED_COSTS");
+    const totalCosts = fixedCosts.reduce((sum, f) => sum + f.PRICE, 0);
 
-    const fixed = db.getAllSync<any>('SELECT * FROM fixed_costs');
-    const totalFixed = fixed.reduce((sum, f) => sum + f.amount, 0);
+    // 現在日時に対応する支出の合計を取得
+    const payments = db.getAllSync<any>("SELECT PRICE FROM PAYMENTS");
+    const totalPayments = payments.reduce((sum, e) => sum + e.PRICE, 0);
 
-    setBalance(budget.income - totalExpense - totalFixed);
+    setBudget(incomePrice - totalCosts - totalPayments);
   };
 
   useEffect(() => {
     load();
   }, []);
 
-  const addExpense = () => {
+  const addPayment = () => {
+    const nowYearMonth = getNowYearMonth();
     db.runSync(
-      'INSERT INTO expenses (amount, createdAt) VALUES (?, ?)',
-      [Number(amount), new Date().toISOString()]
+      "INSERT INTO PAYMENTS (YEAR_MONTH, NAME, PRICE) VALUES (?, ?, ?)",
+      [nowYearMonth, tmpName, Number(tmpPayment)]
     );
-    setAmount('');
+    setTmpPayment("");
+    setTmpName("");
     load();
   };
 
   return (
     <View style={{ padding: 20 }}>
-      <Text>残高: {balance} 円</Text>
+      <Text>残高: {budget} 円</Text>
 
       <TextInput
         placeholder="使用金額"
         keyboardType="numeric"
-        value={amount}
-        onChangeText={setAmount}
+        value={tmpPayment}
+        onChangeText={setTmpPayment}
       />
 
-      <Button title="追加" onPress={addExpense} />
+      <TextInput
+        placeholder="何に使ったか"
+        value={tmpName}
+        onChangeText={setTmpName}
+      />
 
-      {balance === 0 && <Text>予算が設定されていません</Text>}
+      <Button title="追加" onPress={addPayment} />
+
+      {budget === 0 && <Text>予算が設定されていません</Text>}
     </View>
   );
 }

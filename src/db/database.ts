@@ -1,25 +1,29 @@
-import * as SQLite from 'expo-sqlite';
+import * as SQLite from "expo-sqlite";
 
-export const db = SQLite.openDatabaseSync('kodukai.db');
+export const db = SQLite.openDatabaseSync("kodukai.db");
 
 export const initDB = () => {
   db.execSync(`
-    CREATE TABLE IF NOT EXISTS budget (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      income INTEGER,
-      resetDay INTEGER
+    CREATE TABLE IF NOT EXISTS INCOME (
+      YEARMONTH TEXT PRIMARY KEY,
+      INCOME_PRICE INTEGER
     );
 
-    CREATE TABLE IF NOT EXISTS fixed_costs (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      name TEXT,
-      amount INTEGER
+    CREATE TABLE IF NOT EXISTS PAYMENTS (
+      ID INTEGER PRIMARY KEY AUTOINCREMENT,
+      YEAR_MONTH TEXT,
+      NAME TEXT,
+      PRICE INTEGER
     );
 
-    CREATE TABLE IF NOT EXISTS expenses (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      amount INTEGER,
-      createdAt TEXT
+    CREATE TABLE IF NOT EXISTS FIXED_COSTS (
+      ID INTEGER PRIMARY KEY AUTOINCREMENT,
+      NAME TEXT,
+      PRICE INTEGER
+    );
+
+    CREATE TABLE IF NOT EXISTS RESET_DAY (
+      DAY TEXT PRIMARY KEY
     );
   `);
 };
