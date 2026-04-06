@@ -5,7 +5,7 @@ export const db = SQLite.openDatabaseSync("kodukai.db");
 export const initDB = () => {
   db.execSync(`
     CREATE TABLE IF NOT EXISTS INCOME (
-      YEARMONTH TEXT PRIMARY KEY,
+      YEAR_MONTH TEXT PRIMARY KEY,
       INCOME_PRICE INTEGER
     );
 

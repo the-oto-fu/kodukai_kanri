@@ -23,16 +23,14 @@ export default function TopScreen() {
     const nowYearMonth = getNowYearMonth();
     // 現在日時に対応する収入を取得
     const income = db.getFirstSync<any>(
-      "SELECT INCOME_PRICE FROM INCOME WHERE YEARMONTH = ?",
+      "SELECT INCOME_PRICE FROM INCOME WHERE YEAR_MONTH = ?",
       [nowYearMonth]
     );
-    console.log(income);
-    // 要修正 incomeがnullなのでエラーになっている
-    const incomePrice = income.INCOME_PRICE ? income.INCOME_PRICE : 0;
+    const incomePrice = income ? income.INCOME_PRICE : 0;
 
     // 固定費の合計を取得
     // 要修正 PRICEカラムがないというエラー
-    const fixedCosts = db.getAllSync<any>("SELECT * FROM FIXED_COSTS");
+    const fixedCosts = db.getAllSync<any>("SELECT PRICE FROM FIXED_COSTS");
     const totalCosts = fixedCosts.reduce((sum, f) => sum + f.PRICE, 0);
 
     // 現在日時に対応する支出の合計を取得
