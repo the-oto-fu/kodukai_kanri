@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { Button, Text, TextInput, View } from "react-native";
+import { Text, View } from "react-native";
+import { Button, TextInput } from "react-native-paper";
 import { db } from "../db/database";
 
 export default function TopScreen() {
@@ -29,7 +30,6 @@ export default function TopScreen() {
     const incomePrice = income ? income.INCOME_PRICE : 0;
 
     // 固定費の合計を取得
-    // 要修正 PRICEカラムがないというエラー
     const fixedCosts = db.getAllSync<any>("SELECT PRICE FROM FIXED_COSTS");
     const totalCosts = fixedCosts.reduce((sum, f) => sum + f.PRICE, 0);
 
@@ -56,25 +56,37 @@ export default function TopScreen() {
   };
 
   return (
-    <View style={{ padding: 20 }}>
-      <Text>残高: {budget} 円</Text>
+    <>
+      <View style={{ alignItems: "center", justifyContent: "center" }}>
+        <Text style={{ fontSize: 50, fontWeight: "bold" }}>
+          残高: {budget.toLocaleString()} 円
+        </Text>
+      </View>
 
-      <TextInput
-        placeholder="使用金額"
-        keyboardType="numeric"
-        value={tmpPayment}
-        onChangeText={setTmpPayment}
-      />
+      <View style={{ padding: 20 }}>
+        <View style={{ paddingBottom: 20 }}>
+          <TextInput
+            label="使用金額"
+            keyboardType="numeric"
+            value={tmpPayment}
+            onChangeText={setTmpPayment}
+            mode="outlined"
+          />
 
-      <TextInput
-        placeholder="何に使ったか"
-        value={tmpName}
-        onChangeText={setTmpName}
-      />
+          <TextInput
+            label="何に使ったか"
+            value={tmpName}
+            onChangeText={setTmpName}
+            mode="outlined"
+          />
+        </View>
 
-      <Button title="追加" onPress={addPayment} />
+        <Button mode="contained" onPress={addPayment}>
+          追加
+        </Button>
 
-      {budget === 0 && <Text>予算が設定されていません</Text>}
-    </View>
+        {budget === 0 && <Text>予算が設定されていません</Text>}
+      </View>
+    </>
   );
 }

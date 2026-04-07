@@ -13,7 +13,8 @@ export const initDB = () => {
       ID INTEGER PRIMARY KEY AUTOINCREMENT,
       YEAR_MONTH TEXT,
       NAME TEXT,
-      PRICE INTEGER
+      PRICE INTEGER,
+      CREATED_AT TEXT DEFAULT (DATETIME('now', 'localtime'))
     );
 
     CREATE TABLE IF NOT EXISTS FIXED_COSTS (

@@ -55,9 +55,9 @@ export default function HistoryScreen() {
         {
           // 要FlatList化
           payments.map((item) => (
-            <View key={item.id}>
+            <View key={item.ID}>
               <Text>{item.amount}円</Text>
-              <Button title="削除" onPress={() => remove(item.id)} />
+              <Button title="削除" onPress={() => remove(item.ID)} />
             </View>
           ))
         }
