@@ -24,7 +24,7 @@ export const initDB = () => {
     );
 
     CREATE TABLE IF NOT EXISTS RESET_DAY (
-      DAY TEXT PRIMARY KEY
+      DAY INTEGER PRIMARY KEY
     );
   `);
 };

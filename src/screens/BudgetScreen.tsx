@@ -5,7 +5,7 @@ import { db } from "../db/database";
 
 export default function BudgetScreen() {
   const [income, setIncome] = useState<number | undefined>(undefined);
-  const [resetDay, setResetDay] = useState("");
+  const [resetDay, setResetDay] = useState<number | undefined>(undefined);
   const [tmpFixedName, setTmpFixedName] = useState("");
   const [tmpFixedPrice, setTmpFixedPrice] = useState<number | undefined>(
     undefined
@@ -23,20 +23,45 @@ export default function BudgetScreen() {
       .replace("/", "-");
   };
 
+  const getNextYearMonth = () => {
+    const now = new Date();
+    // 来月の日付を取得
+    now.setMonth(now.getMonth() + 1);
+
+    return now
+      .toLocaleDateString("ja-JP", {
+        year: "numeric",
+        month: "2-digit",
+      })
+      .replace("/", "-");
+  };
+
   const load = () => {
-    const nowYearMonth = getNowYearMonth();
+    // 現在の日付がリセット日を過ぎているか確認
+    const reset_day = db.getFirstSync<any>("SELECT DAY FROM RESET_DAY");
+    let yearMonth;
+    if (reset_day) {
+      setResetDay(reset_day.DAY);
+      const date = new Date();
+      const today = date.getDate();
+      const resetDay = Number(reset_day.DAY);
+      if (today >= resetDay) {
+        // リセット日を過ぎている場合、取得するのは来月の年月
+        yearMonth = getNextYearMonth();
+      } else {
+        // リセット日を過ぎていない場合、取得するのは今月の年月
+        yearMonth = getNowYearMonth();
+      }
+    } else {
+      yearMonth = getNowYearMonth();
+    }
 
     const income = db.getFirstSync<any>(
       "SELECT INCOME_PRICE FROM INCOME WHERE YEAR_MONTH = ?",
-      [nowYearMonth]
+      [yearMonth]
     );
     if (income) {
       setIncome(Number(income.INCOME_PRICE));
-    }
-
-    const reset_day = db.getFirstSync<any>("SELECT DAY FROM RESET_DAY");
-    if (reset_day) {
-      setResetDay(String(reset_day.DAY));
     }
   };
 
@@ -53,14 +78,49 @@ export default function BudgetScreen() {
   const saveIncome = () => {
     Keyboard.dismiss();
     if (income !== undefined) {
+      // 現在の日付がリセット日を過ぎているか確認
+      const reset_day = db.getFirstSync<any>("SELECT DAY FROM RESET_DAY");
+      let yearMonth;
+      if (reset_day) {
+        setResetDay(reset_day.DAY);
+        const date = new Date();
+        const today = date.getDate();
+        const resetDay = Number(reset_day.DAY);
+        if (today >= resetDay) {
+          // リセット日を過ぎている場合、取得するのは来月の年月
+          yearMonth = getNextYearMonth();
+        } else {
+          // リセット日を過ぎていない場合、取得するのは今月の年月
+          yearMonth = getNowYearMonth();
+        }
+      } else {
+        yearMonth = getNowYearMonth();
+      }
+
       db.runSync(
         `INSERT INTO INCOME (YEAR_MONTH, INCOME_PRICE) VALUES (?, ?)
          ON CONFLICT(YEAR_MONTH)
          DO UPDATE SET INCOME_PRICE = excluded.INCOME_PRICE`,
-        [getNowYearMonth(), income]
+        [yearMonth, income]
       );
       showSnackbar("収入を保存しました");
     }
+  };
+
+  const saveResetDay = () => {
+    Keyboard.dismiss();
+    if (
+      resetDay === undefined ||
+      isNaN(resetDay) ||
+      resetDay <= 0 ||
+      resetDay > 31
+    ) {
+      showSnackbar("リセット日は1〜31の数字で入力してください");
+      return;
+    }
+    db.runSync("DELETE FROM RESET_DAY;", [resetDay]);
+    db.runSync("INSERT INTO RESET_DAY (DAY) VALUES (?)", [resetDay]);
+    showSnackbar("リセット日を保存しました");
   };
 
   const addFixed = () => {
@@ -118,13 +178,17 @@ export default function BudgetScreen() {
           mode="outlined"
           label="リセット日"
           keyboardType="numeric"
-          value={resetDay}
-          onChangeText={setResetDay}
+          value={resetDay !== undefined ? resetDay.toString() : ""}
+          onChangeText={(text) => {
+            const num = Number(text);
+            setResetDay(isNaN(num) ? undefined : num);
+          }}
         />
         <Button
           mode="contained"
-          disabled={resetDay === ""}
+          disabled={resetDay === undefined}
           style={{ marginTop: 10 }}
+          onPress={saveResetDay}
         >
           保存
         </Button>
