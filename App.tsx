@@ -24,7 +24,7 @@ export default function App() {
           <Appbar.Content title="お小遣い管理" />
 
           <Appbar.Action icon="home" onPress={() => setScreen("top")} />
-          <Appbar.Action icon="cash" onPress={() => setScreen("budget")} />
+          <Appbar.Action icon="cog" onPress={() => setScreen("budget")} />
           <Appbar.Action icon="history" onPress={() => setScreen("history")} />
         </Appbar.Header>
 

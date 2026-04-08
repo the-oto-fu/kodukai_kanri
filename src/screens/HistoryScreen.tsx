@@ -1,7 +1,8 @@
 import * as FileSystem from "expo-file-system";
 import * as Sharing from "expo-sharing";
 import React, { useEffect, useState } from "react";
-import { Button, ScrollView, Text, View } from "react-native";
+import { FlatList, Text, View } from "react-native";
+import { Button, IconButton } from "react-native-paper";
 import { db } from "../db/database";
 
 export default function HistoryScreen() {
@@ -38,7 +39,7 @@ export default function HistoryScreen() {
     json.forEach((e: any) => {
       db.runSync(
         "INSERT INTO PAYMENTS (YEAR_MONTH, NAME, PRICE) VALUES (?, ?, ?)",
-        [e.YEAR_MONTH, e.NAME, e.PRICE]
+        [e.YEAR_MONTH, e.NAME, e.PRICE],
       );
     });
     // 要トランザクション化ここまで
@@ -46,22 +47,69 @@ export default function HistoryScreen() {
     load();
   };
 
-  return (
-    <View style={{ padding: 20 }}>
-      <Button title="エクスポート" onPress={exportFile} />
-      <Button title="インポート" onPress={importFile} />
+  function Divider() {
+    return <View style={{ borderBottomWidth: 2, height: 15 }} />;
+  }
 
-      <ScrollView>
-        {
-          // 要FlatList化
-          payments.map((item) => (
-            <View key={item.ID}>
-              <Text>{item.amount}円</Text>
-              <Button title="削除" onPress={() => remove(item.ID)} />
-            </View>
-          ))
-        }
-      </ScrollView>
-    </View>
+  return (
+    <>
+      <View style={{ padding: 20 }}>
+        <FlatList
+          data={payments}
+          //一意となるkeyをidで管理
+          keyExtractor={(item) => item.ID}
+          ItemSeparatorComponent={Divider}
+          //レンダリングされるViewを定義
+          renderItem={({ item }) => {
+            return (
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                }}
+              >
+                <Text style={{ width: "30%", fontSize: 25 }}>
+                  {item.PRICE}円
+                </Text>
+                <Text style={{ width: "60%", fontSize: 20 }}>{item.NAME}</Text>
+                <IconButton
+                  style={{ width: "10%" }}
+                  icon="bomb"
+                  onPress={() => remove(item.ID)}
+                  iconColor="#ee1473"
+                />
+              </View>
+            );
+          }}
+        />
+      </View>
+      <View
+        style={{
+          flexDirection: "row",
+          justifyContent: "center",
+          paddingVertical: 20,
+          position: "absolute",
+          bottom: 20,
+          width: "100%",
+        }}
+      >
+        <Button
+          mode="contained"
+          onPress={importFile}
+          icon="import"
+          style={{ width: 150, marginRight: 10 }}
+        >
+          インポート
+        </Button>
+        <Button
+          mode="contained"
+          onPress={exportFile}
+          icon="export"
+          style={{ width: 150 }}
+        >
+          エクスポート
+        </Button>
+      </View>
+    </>
   );
 }
