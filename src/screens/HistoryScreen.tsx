@@ -48,7 +48,7 @@ export default function HistoryScreen() {
   };
 
   function Divider() {
-    return <View style={{ borderBottomWidth: 2, height: 15 }} />;
+    return <View style={{ borderBottomWidth: 1, borderColor: "gray" }} />;
   }
 
   return (
@@ -77,6 +77,7 @@ export default function HistoryScreen() {
                   icon="bomb"
                   onPress={() => remove(item.ID)}
                   iconColor="#ee1473"
+                  size={30}
                 />
               </View>
             );
