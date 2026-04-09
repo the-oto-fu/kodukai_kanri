@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Keyboard, Text, View } from "react-native";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { Button, Snackbar, TextInput } from "react-native-paper";
 import { db } from "../db/database";
 
@@ -8,7 +9,7 @@ export default function BudgetScreen() {
   const [resetDay, setResetDay] = useState<number | undefined>(undefined);
   const [tmpFixedName, setTmpFixedName] = useState("");
   const [tmpFixedPrice, setTmpFixedPrice] = useState<number | undefined>(
-    undefined
+    undefined,
   );
   const [snackbarVisible, setSnackbarVisible] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
@@ -58,7 +59,7 @@ export default function BudgetScreen() {
 
     const income = db.getFirstSync<any>(
       "SELECT INCOME_PRICE FROM INCOME WHERE YEAR_MONTH = ?",
-      [yearMonth]
+      [yearMonth],
     );
     if (income) {
       setIncome(Number(income.INCOME_PRICE));
@@ -101,7 +102,7 @@ export default function BudgetScreen() {
         `INSERT INTO INCOME (YEAR_MONTH, INCOME_PRICE) VALUES (?, ?)
          ON CONFLICT(YEAR_MONTH)
          DO UPDATE SET INCOME_PRICE = excluded.INCOME_PRICE`,
-        [yearMonth, income]
+        [yearMonth, income],
       );
       showSnackbar("収入を保存しました");
     }
@@ -137,7 +138,10 @@ export default function BudgetScreen() {
   };
 
   return (
-    <>
+    <KeyboardAwareScrollView
+      enableOnAndroid={true} // Androidで有効化
+      extraScrollHeight={120}
+    >
       <Snackbar
         visible={snackbarVisible}
         onDismiss={() => setSnackbarVisible(false)}
@@ -226,6 +230,6 @@ export default function BudgetScreen() {
           追加
         </Button>
       </View>
-    </>
+    </KeyboardAwareScrollView>
   );
 }
