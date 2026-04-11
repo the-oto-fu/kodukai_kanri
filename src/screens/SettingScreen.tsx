@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Keyboard, Text, View } from "react-native";
+import { FlatList, Keyboard, Text, View } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { Button, Snackbar, TextInput } from "react-native-paper";
 import { db } from "../db/database";
@@ -11,6 +11,9 @@ export default function BudgetScreen() {
   const [tmpFixedPrice, setTmpFixedPrice] = useState<number | undefined>(
     undefined,
   );
+  const [fixedCosts, setFixedCosts] = useState<
+    { ID: number; NAME: string; PRICE: number }[]
+  >([]);
   const [snackbarVisible, setSnackbarVisible] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
 
@@ -63,6 +66,14 @@ export default function BudgetScreen() {
     );
     if (income) {
       setIncome(Number(income.INCOME_PRICE));
+    }
+
+    const dbFixedCosts = db.getAllSync<any>(
+      "SELECT ID, NAME, PRICE FROM FIXED_COSTS",
+    );
+    if (dbFixedCosts) {
+      console.log(dbFixedCosts);
+      setFixedCosts(dbFixedCosts);
     }
   };
 
@@ -229,6 +240,17 @@ export default function BudgetScreen() {
         >
           追加
         </Button>
+        <FlatList
+          data={fixedCosts}
+          keyExtractor={(item) => item.ID.toString()}
+          renderItem={({ item }) => (
+            <View style={{ padding: 10 }}>
+              <Text>
+                {item.NAME}: {item.PRICE}
+              </Text>
+            </View>
+          )}
+        />
       </View>
     </KeyboardAwareScrollView>
   );
