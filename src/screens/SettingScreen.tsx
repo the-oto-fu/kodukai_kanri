@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { FlatList, Keyboard, Text, View } from "react-native";
-import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
-import { Button, Snackbar, TextInput } from "react-native-paper";
+import { Button, IconButton, Snackbar, TextInput } from "react-native-paper";
 import { db } from "../db/database";
 
 export default function BudgetScreen() {
@@ -135,7 +134,7 @@ export default function BudgetScreen() {
     showSnackbar("リセット日を保存しました");
   };
 
-  const addFixed = () => {
+  const addFixedCosts = () => {
     if (tmpFixedPrice !== undefined && tmpFixedName !== "") {
       db.runSync("INSERT INTO FIXED_COSTS (NAME, PRICE) VALUES (?, ?)", [
         tmpFixedName,
@@ -148,11 +147,13 @@ export default function BudgetScreen() {
     }
   };
 
+  const removeFixedCosts = (id: number) => {
+    db.runSync("DELETE FROM FIXED_COSTS WHERE ID=?", [id]);
+    load();
+  };
+
   return (
-    <KeyboardAwareScrollView
-      enableOnAndroid={true} // Androidで有効化
-      extraScrollHeight={120}
-    >
+    <>
       <Snackbar
         visible={snackbarVisible}
         onDismiss={() => setSnackbarVisible(false)}
@@ -234,24 +235,37 @@ export default function BudgetScreen() {
         />
         <Button
           mode="contained"
-          onPress={addFixed}
+          onPress={addFixedCosts}
           disabled={tmpFixedPrice === undefined}
           style={{ marginTop: 10 }}
         >
           追加
         </Button>
+
         <FlatList
+          style={{ height: 170 }}
           data={fixedCosts}
           keyExtractor={(item) => item.ID.toString()}
           renderItem={({ item }) => (
-            <View style={{ padding: 10 }}>
-              <Text>
-                {item.NAME}: {item.PRICE}
-              </Text>
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+              }}
+            >
+              <Text style={{ width: "30%", fontSize: 17 }}>{item.NAME}</Text>
+              <Text style={{ width: "60%", fontSize: 17 }}>{item.PRICE}円</Text>
+              <IconButton
+                style={{ width: "10%" }}
+                icon="bomb"
+                onPress={() => removeFixedCosts(item.ID)}
+                iconColor="#ee1473"
+                size={20}
+              />
             </View>
           )}
         />
       </View>
-    </KeyboardAwareScrollView>
+    </>
   );
 }
