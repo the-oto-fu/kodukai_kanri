@@ -143,6 +143,7 @@ export default function BudgetScreen() {
       setTmpFixedName("");
       setTmpFixedPrice(undefined);
 
+      load();
       showSnackbar("固定支出を追加しました");
     }
   };
