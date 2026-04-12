@@ -2,60 +2,22 @@ import React, { useEffect, useState } from "react";
 import { Text, View } from "react-native";
 import { Button, TextInput } from "react-native-paper";
 import { db } from "../db/database";
+import { useYearMonth } from "../hooks/useYearMonth";
 
 export default function TopScreen() {
   const [budget, setBudget] = useState(0);
   const [tmpPayment, setTmpPayment] = useState("");
   const [tmpName, setTmpName] = useState("");
 
-  // 現在日時に対応する年月をYYYY-MMの形で取得
-  // 要hook化
-  const getNowYearMonth = () => {
-    const now = new Date();
-    return now
-      .toLocaleDateString("ja-JP", {
-        year: "numeric",
-        month: "2-digit",
-      })
-      .replace("/", "-");
-  };
-
-  const getNextYearMonth = () => {
-    const now = new Date();
-    // 来月の日付を取得
-    now.setMonth(now.getMonth() + 1);
-
-    return now
-      .toLocaleDateString("ja-JP", {
-        year: "numeric",
-        month: "2-digit",
-      })
-      .replace("/", "-");
-  };
+  const { getTargetYearMonth } = useYearMonth();
 
   const load = () => {
-    // 現在の日付がリセット日を過ぎているか確認
-    const reset_day = db.getFirstSync<any>("SELECT DAY FROM RESET_DAY");
-    let yearMonth;
-    if (reset_day) {
-      const date = new Date();
-      const today = date.getDate();
-      const resetDay = Number(reset_day.DAY);
-      if (today >= resetDay) {
-        // リセット日を過ぎている場合、取得するのは来月の年月
-        yearMonth = getNextYearMonth();
-      } else {
-        // リセット日を過ぎていない場合、取得するのは今月の年月
-        yearMonth = getNowYearMonth();
-      }
-    } else {
-      yearMonth = getNowYearMonth();
-    }
+    const targertYearMonth = getTargetYearMonth();
 
     // 現日時に対応する収入を取得
     const income = db.getFirstSync<any>(
       "SELECT INCOME_PRICE FROM INCOME WHERE YEAR_MONTH = ?",
-      [yearMonth]
+      [targertYearMonth],
     );
     const incomePrice = income ? income.INCOME_PRICE : 0;
 
@@ -66,7 +28,7 @@ export default function TopScreen() {
     // 現在日時に対応する支出の合計を取得
     const payments = db.getAllSync<any>(
       "SELECT PRICE FROM PAYMENTS WHERE YEAR_MONTH = ?",
-      [yearMonth]
+      [targertYearMonth],
     );
     const totalPayments = payments.reduce((sum, e) => sum + e.PRICE, 0);
 
@@ -78,26 +40,9 @@ export default function TopScreen() {
   }, []);
 
   const addPayment = () => {
-    // 現在の日付がリセット日を過ぎているか確認
-    const reset_day = db.getFirstSync<any>("SELECT DAY FROM RESET_DAY");
-    let yearMonth;
-    if (reset_day) {
-      const date = new Date();
-      const today = date.getDate();
-      const resetDay = Number(reset_day.DAY);
-      if (today >= resetDay) {
-        // リセット日を過ぎている場合、取得するのは来月の年月
-        yearMonth = getNextYearMonth();
-      } else {
-        // リセット日を過ぎていない場合、取得するのは今月の年月
-        yearMonth = getNowYearMonth();
-      }
-    } else {
-      yearMonth = getNowYearMonth();
-    }
     db.runSync(
       "INSERT INTO PAYMENTS (YEAR_MONTH, NAME, PRICE) VALUES (?, ?, ?)",
-      [yearMonth, tmpName, Number(tmpPayment)]
+      [getTargetYearMonth(), tmpName, Number(tmpPayment)],
     );
     setTmpPayment("");
     setTmpName("");

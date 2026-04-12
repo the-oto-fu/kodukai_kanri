@@ -13,6 +13,17 @@ export default function App() {
 
   useEffect(() => {
     initDB();
+
+    /*
+    const income = db.getFirstSync<any>(
+      "SELECT INCOME_PRICE FROM INCOME WHERE YEAR_MONTH = ?",
+      [yearMonth],
+    );
+    if (income) {
+      setIncome(Number(income.INCOME_PRICE));
+    }
+      */
+
     setReady(true);
   }, []);
 

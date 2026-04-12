@@ -4,12 +4,18 @@ import React, { useEffect, useState } from "react";
 import { FlatList, Text, View } from "react-native";
 import { Button, IconButton } from "react-native-paper";
 import { db } from "../db/database";
+import { useYearMonth } from "../hooks/useYearMonth";
 
 export default function HistoryScreen() {
   const [payments, setPayments] = useState<any[]>([]);
 
+  const { getTargetYearMonth } = useYearMonth();
+
   const load = () => {
-    const payments = db.getAllSync<any>("SELECT * FROM PAYMENTS");
+    const payments = db.getAllSync<any>(
+      "SELECT * FROM PAYMENTS WHERE YEAR_MONTH = ?",
+      [getTargetYearMonth()],
+    );
     setPayments(payments);
   };
 

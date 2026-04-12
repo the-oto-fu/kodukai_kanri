@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { FlatList, Keyboard, Text, View } from "react-native";
 import { Button, IconButton, Snackbar, TextInput } from "react-native-paper";
 import { db } from "../db/database";
+import { useYearMonth } from "../hooks/useYearMonth";
 
 export default function BudgetScreen() {
   const [income, setIncome] = useState<number | undefined>(undefined);
@@ -16,52 +17,12 @@ export default function BudgetScreen() {
   const [snackbarVisible, setSnackbarVisible] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
 
-  const getNowYearMonth = () => {
-    const now = new Date();
-    return now
-      .toLocaleDateString("ja-JP", {
-        year: "numeric",
-        month: "2-digit",
-      })
-      .replace("/", "-");
-  };
-
-  const getNextYearMonth = () => {
-    const now = new Date();
-    // 来月の日付を取得
-    now.setMonth(now.getMonth() + 1);
-
-    return now
-      .toLocaleDateString("ja-JP", {
-        year: "numeric",
-        month: "2-digit",
-      })
-      .replace("/", "-");
-  };
+  const { getTargetYearMonth } = useYearMonth();
 
   const load = () => {
-    // 現在の日付がリセット日を過ぎているか確認
-    const reset_day = db.getFirstSync<any>("SELECT DAY FROM RESET_DAY");
-    let yearMonth;
-    if (reset_day) {
-      setResetDay(reset_day.DAY);
-      const date = new Date();
-      const today = date.getDate();
-      const resetDay = Number(reset_day.DAY);
-      if (today >= resetDay) {
-        // リセット日を過ぎている場合、取得するのは来月の年月
-        yearMonth = getNextYearMonth();
-      } else {
-        // リセット日を過ぎていない場合、取得するのは今月の年月
-        yearMonth = getNowYearMonth();
-      }
-    } else {
-      yearMonth = getNowYearMonth();
-    }
-
     const income = db.getFirstSync<any>(
       "SELECT INCOME_PRICE FROM INCOME WHERE YEAR_MONTH = ?",
-      [yearMonth],
+      [getTargetYearMonth()],
     );
     if (income) {
       setIncome(Number(income.INCOME_PRICE));
@@ -89,30 +50,11 @@ export default function BudgetScreen() {
   const saveIncome = () => {
     Keyboard.dismiss();
     if (income !== undefined) {
-      // 現在の日付がリセット日を過ぎているか確認
-      const reset_day = db.getFirstSync<any>("SELECT DAY FROM RESET_DAY");
-      let yearMonth;
-      if (reset_day) {
-        setResetDay(reset_day.DAY);
-        const date = new Date();
-        const today = date.getDate();
-        const resetDay = Number(reset_day.DAY);
-        if (today >= resetDay) {
-          // リセット日を過ぎている場合、取得するのは来月の年月
-          yearMonth = getNextYearMonth();
-        } else {
-          // リセット日を過ぎていない場合、取得するのは今月の年月
-          yearMonth = getNowYearMonth();
-        }
-      } else {
-        yearMonth = getNowYearMonth();
-      }
-
       db.runSync(
         `INSERT INTO INCOME (YEAR_MONTH, INCOME_PRICE) VALUES (?, ?)
          ON CONFLICT(YEAR_MONTH)
          DO UPDATE SET INCOME_PRICE = excluded.INCOME_PRICE`,
-        [yearMonth, income],
+        [getTargetYearMonth(), income],
       );
       showSnackbar("収入を保存しました");
     }
