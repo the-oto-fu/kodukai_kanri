@@ -20,19 +20,23 @@ export default function BudgetScreen() {
   const { getTargetYearMonth } = useYearMonth();
 
   const load = () => {
-    const income = db.getFirstSync<any>(
+    const dbIncome = db.getFirstSync<any>(
       "SELECT INCOME_PRICE FROM INCOME WHERE YEAR_MONTH = ?",
       [getTargetYearMonth()],
     );
-    if (income) {
-      setIncome(Number(income.INCOME_PRICE));
+    if (dbIncome) {
+      setIncome(dbIncome.INCOME_PRICE);
+    }
+
+    const dbResetDay = db.getFirstSync<any>("SELECT DAY FROM RESET_DAY", []);
+    if (dbResetDay) {
+      setResetDay(dbResetDay.DAY);
     }
 
     const dbFixedCosts = db.getAllSync<any>(
       "SELECT ID, NAME, PRICE FROM FIXED_COSTS",
     );
     if (dbFixedCosts) {
-      console.log(dbFixedCosts);
       setFixedCosts(dbFixedCosts);
     }
   };
@@ -137,7 +141,7 @@ export default function BudgetScreen() {
           mode="outlined"
           label="リセット日"
           keyboardType="numeric"
-          value={resetDay !== undefined ? resetDay.toString() : ""}
+          value={resetDay === undefined ? "" : resetDay.toString()}
           onChangeText={(text) => {
             const num = Number(text);
             setResetDay(isNaN(num) ? undefined : num);
