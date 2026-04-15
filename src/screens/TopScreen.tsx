@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Text, View } from "react-native";
+import { Keyboard, Text, TouchableWithoutFeedback, View } from "react-native";
 import { Button, TextInput } from "react-native-paper";
 import { db } from "../db/database";
 import { useYearMonth } from "../hooks/useYearMonth";
@@ -50,37 +50,44 @@ export default function TopScreen() {
   };
 
   return (
-    <>
-      <View style={{ alignItems: "center", justifyContent: "center" }}>
-        <Text style={{ fontSize: 50, fontWeight: "bold" }}>
-          残高: {budget.toLocaleString()} 円
-        </Text>
-      </View>
-
-      <View style={{ padding: 20 }}>
-        <View style={{ paddingBottom: 20 }}>
-          <TextInput
-            label="使用金額"
-            keyboardType="numeric"
-            value={tmpPayment}
-            onChangeText={setTmpPayment}
-            mode="outlined"
-          />
-
-          <TextInput
-            label="何に使ったか"
-            value={tmpName}
-            onChangeText={setTmpName}
-            mode="outlined"
-          />
+    <TouchableWithoutFeedback
+      onPress={() => {
+        Keyboard.dismiss();
+      }}
+    >
+      {/* 画面全体をタップ可能にして、タップしたらキーボードを閉じるためのView */}
+      <View style={{ height: "100%" }}>
+        <View style={{ alignItems: "center", justifyContent: "center" }}>
+          <Text style={{ fontSize: 50, fontWeight: "bold" }}>
+            残高: {budget.toLocaleString()} 円
+          </Text>
         </View>
 
-        <Button mode="contained" onPress={addPayment}>
-          追加
-        </Button>
+        <View style={{ padding: 20 }}>
+          <View style={{ paddingBottom: 20 }}>
+            <TextInput
+              label="使用金額"
+              keyboardType="numeric"
+              value={tmpPayment}
+              onChangeText={setTmpPayment}
+              mode="outlined"
+            />
 
-        {budget === 0 && <Text>予算が設定されていません</Text>}
+            <TextInput
+              label="何に使ったか"
+              value={tmpName}
+              onChangeText={setTmpName}
+              mode="outlined"
+            />
+          </View>
+
+          <Button mode="contained" onPress={addPayment}>
+            追加
+          </Button>
+
+          {budget === 0 && <Text>予算が設定されていません</Text>}
+        </View>
       </View>
-    </>
+    </TouchableWithoutFeedback>
   );
 }
