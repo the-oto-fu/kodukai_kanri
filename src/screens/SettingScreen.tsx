@@ -1,5 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { FlatList, Keyboard, Text, View } from "react-native";
+import {
+  FlatList,
+  Keyboard,
+  KeyboardAvoidingView,
+  Text,
+  View,
+} from "react-native";
 import { Button, IconButton, Snackbar, TextInput } from "react-native-paper";
 import { db } from "../db/database";
 import { useYearMonth } from "../hooks/useYearMonth";
@@ -100,7 +106,7 @@ export default function BudgetScreen() {
   };
 
   return (
-    <>
+    <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
       <Snackbar
         visible={snackbarVisible}
         onDismiss={() => setSnackbarVisible(false)}
@@ -109,110 +115,114 @@ export default function BudgetScreen() {
         {snackbarMessage}
       </Snackbar>
 
-      <View style={{ padding: 20 }}>
-        <Text>今月の収入</Text>
-        <TextInput
-          mode="outlined"
-          label="金額"
-          keyboardType="numeric"
-          value={income !== undefined ? income.toString() : ""}
-          onChangeText={(text) => {
-            if (text === "") {
-              setIncome(undefined);
-              return;
-            }
-            const num = Number(text);
-            setIncome(isNaN(num) ? undefined : num);
-          }}
-        />
-        <Button
-          mode="contained"
-          onPress={saveIncome}
-          disabled={income === undefined}
-          style={{ marginTop: 10 }}
-        >
-          保存
-        </Button>
-      </View>
+      <View style={{ flex: 1, justifyContent: "flex-end" }}>
+        <View style={{ padding: 20 }}>
+          <Text>今月の収入</Text>
+          <TextInput
+            mode="outlined"
+            label="金額"
+            keyboardType="numeric"
+            value={income !== undefined ? income.toString() : ""}
+            onChangeText={(text) => {
+              if (text === "") {
+                setIncome(undefined);
+                return;
+              }
+              const num = Number(text);
+              setIncome(isNaN(num) ? undefined : num);
+            }}
+          />
+          <Button
+            mode="contained"
+            onPress={saveIncome}
+            disabled={income === undefined}
+            style={{ marginTop: 10 }}
+          >
+            保存
+          </Button>
+        </View>
 
-      <View style={{ padding: 20 }}>
-        <Text>リセット日</Text>
-        <TextInput
-          mode="outlined"
-          label="リセット日"
-          keyboardType="numeric"
-          value={resetDay === undefined ? "" : resetDay.toString()}
-          onChangeText={(text) => {
-            const num = Number(text);
-            setResetDay(isNaN(num) ? undefined : num);
-          }}
-        />
-        <Button
-          mode="contained"
-          disabled={resetDay === undefined}
-          style={{ marginTop: 10 }}
-          onPress={saveResetDay}
-        >
-          保存
-        </Button>
-      </View>
+        <View style={{ padding: 20 }}>
+          <Text>リセット日</Text>
+          <TextInput
+            mode="outlined"
+            label="リセット日"
+            keyboardType="numeric"
+            value={resetDay === undefined ? "" : resetDay.toString()}
+            onChangeText={(text) => {
+              const num = Number(text);
+              setResetDay(isNaN(num) ? undefined : num);
+            }}
+          />
+          <Button
+            mode="contained"
+            disabled={resetDay === undefined}
+            style={{ marginTop: 10 }}
+            onPress={saveResetDay}
+          >
+            保存
+          </Button>
+        </View>
 
-      <View style={{ padding: 20 }}>
-        <Text>固定支出</Text>
-        <TextInput
-          mode="outlined"
-          label="名前"
-          value={tmpFixedName}
-          onChangeText={setTmpFixedName}
-        />
-        <TextInput
-          mode="outlined"
-          label="金額"
-          keyboardType="numeric"
-          value={tmpFixedPrice !== undefined ? tmpFixedPrice.toString() : ""}
-          onChangeText={(text) => {
-            if (text === "") {
-              setTmpFixedPrice(undefined);
-              return;
-            }
-            const num = Number(text);
-            setTmpFixedPrice(isNaN(num) ? undefined : num);
-          }}
-          style={{ marginTop: 10 }}
-        />
-        <Button
-          mode="contained"
-          onPress={addFixedCosts}
-          disabled={tmpFixedPrice === undefined}
-          style={{ marginTop: 10 }}
-        >
-          追加
-        </Button>
+        <View style={{ padding: 20 }}>
+          <Text>固定支出</Text>
+          <TextInput
+            mode="outlined"
+            label="名前"
+            value={tmpFixedName}
+            onChangeText={setTmpFixedName}
+          />
+          <TextInput
+            mode="outlined"
+            label="金額"
+            keyboardType="numeric"
+            value={tmpFixedPrice !== undefined ? tmpFixedPrice.toString() : ""}
+            onChangeText={(text) => {
+              if (text === "") {
+                setTmpFixedPrice(undefined);
+                return;
+              }
+              const num = Number(text);
+              setTmpFixedPrice(isNaN(num) ? undefined : num);
+            }}
+            style={{ marginTop: 10 }}
+          />
+          <Button
+            mode="contained"
+            onPress={addFixedCosts}
+            disabled={tmpFixedPrice === undefined}
+            style={{ marginTop: 10 }}
+          >
+            追加
+          </Button>
 
-        <FlatList
-          style={{ height: 170 }}
-          data={fixedCosts}
-          keyExtractor={(item) => item.ID.toString()}
-          renderItem={({ item }) => (
-            <View
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-              }}
-            >
-              <Text style={{ width: "30%", fontSize: 17 }}>{item.NAME}</Text>
-              <Text style={{ width: "60%", fontSize: 17 }}>{item.PRICE}円</Text>
-              <IconButton
-                style={{ width: "10%" }}
-                icon="bomb"
-                onPress={() => removeFixedCosts(item.ID)}
-                iconColor="#ee1473"
-                size={20}
-              />
-            </View>
-          )}
-        />
+          <FlatList
+            style={{ height: 170 }}
+            data={fixedCosts}
+            keyExtractor={(item) => item.ID.toString()}
+            renderItem={({ item }) => (
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                }}
+              >
+                <Text style={{ width: "30%", fontSize: 17 }}>{item.NAME}</Text>
+                <Text style={{ width: "60%", fontSize: 17 }}>
+                  {item.PRICE}円
+                </Text>
+                <IconButton
+                  style={{ width: "10%" }}
+                  icon="bomb"
+                  onPress={() => removeFixedCosts(item.ID)}
+                  iconColor="#ee1473"
+                  size={20}
+                />
+              </View>
+            )}
+          />
+        </View>
       </View>
-    </>
+    </KeyboardAvoidingView>
   );
 }
