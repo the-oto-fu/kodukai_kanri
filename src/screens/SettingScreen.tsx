@@ -22,6 +22,7 @@ export default function BudgetScreen() {
   >([]);
   const [snackbarVisible, setSnackbarVisible] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [isAvoiding, setIsAvoiding] = useState(false);
 
   const { getTargetYearMonth } = useYearMonth();
 
@@ -106,7 +107,11 @@ export default function BudgetScreen() {
   };
 
   return (
-    <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
+    <KeyboardAvoidingView
+      enabled={isAvoiding}
+      behavior="padding"
+      style={{ flex: 1 }}
+    >
       <Snackbar
         visible={snackbarVisible}
         onDismiss={() => setSnackbarVisible(false)}
@@ -115,6 +120,7 @@ export default function BudgetScreen() {
         {snackbarMessage}
       </Snackbar>
 
+      {/* KeyboardAvoidingViewによって動く中身を格納するコンテナ */}
       <View style={{ flex: 1, justifyContent: "flex-end", overflow: "hidden" }}>
         <View style={{ padding: 20 }}>
           <Text>今月の収入</Text>
@@ -122,6 +128,7 @@ export default function BudgetScreen() {
             mode="outlined"
             label="金額"
             keyboardType="numeric"
+            onFocus={() => setIsAvoiding(false)}
             value={income !== undefined ? income.toString() : ""}
             onChangeText={(text) => {
               if (text === "") {
@@ -148,6 +155,7 @@ export default function BudgetScreen() {
             mode="outlined"
             label="リセット日"
             keyboardType="numeric"
+            onFocus={() => setIsAvoiding(false)}
             value={resetDay === undefined ? "" : resetDay.toString()}
             onChangeText={(text) => {
               const num = Number(text);
@@ -169,6 +177,7 @@ export default function BudgetScreen() {
           <TextInput
             mode="outlined"
             label="名前"
+            onFocus={() => setIsAvoiding(true)}
             value={tmpFixedName}
             onChangeText={setTmpFixedName}
           />
@@ -176,6 +185,7 @@ export default function BudgetScreen() {
             mode="outlined"
             label="金額"
             keyboardType="numeric"
+            onFocus={() => setIsAvoiding(true)}
             value={tmpFixedPrice !== undefined ? tmpFixedPrice.toString() : ""}
             onChangeText={(text) => {
               if (text === "") {
