@@ -115,7 +115,7 @@ export default function BudgetScreen() {
         {snackbarMessage}
       </Snackbar>
 
-      <View style={{ flex: 1, justifyContent: "flex-end" }}>
+      <View style={{ flex: 1, justifyContent: "flex-end", overflow: "hidden" }}>
         <View style={{ padding: 20 }}>
           <Text>今月の収入</Text>
           <TextInput
