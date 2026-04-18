@@ -107,10 +107,13 @@ export default function HistoryScreen() {
                   alignItems: "center",
                 }}
               >
+                <Text style={{ width: "10%", fontSize: 10 }}>
+                  {item.CREATED_AT.slice(5, 10).replace("-", "/")}
+                </Text>
                 <Text style={{ width: "30%", fontSize: 25 }}>
                   {item.PRICE}円
                 </Text>
-                <Text style={{ width: "60%", fontSize: 20 }}>{item.NAME}</Text>
+                <Text style={{ width: "50%", fontSize: 20 }}>{item.NAME}</Text>
                 <IconButton
                   style={{ width: "10%" }}
                   icon="bomb"

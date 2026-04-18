@@ -176,13 +176,6 @@ export default function BudgetScreen() {
           <Text>固定支出</Text>
           <TextInput
             mode="outlined"
-            label="名前"
-            onFocus={() => setIsAvoiding(true)}
-            value={tmpFixedName}
-            onChangeText={setTmpFixedName}
-          />
-          <TextInput
-            mode="outlined"
             label="金額"
             keyboardType="numeric"
             onFocus={() => setIsAvoiding(true)}
@@ -196,6 +189,13 @@ export default function BudgetScreen() {
               setTmpFixedPrice(isNaN(num) ? undefined : num);
             }}
             style={{ marginTop: 10 }}
+          />
+          <TextInput
+            mode="outlined"
+            label="名前"
+            onFocus={() => setIsAvoiding(true)}
+            value={tmpFixedName}
+            onChangeText={setTmpFixedName}
           />
           <Button
             mode="contained"
