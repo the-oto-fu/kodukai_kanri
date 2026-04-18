@@ -1,4 +1,5 @@
-import * as FileSystem from "expo-file-system";
+import * as DocumentPicker from "expo-document-picker";
+import { File, Paths } from "expo-file-system";
 import * as Sharing from "expo-sharing";
 import React, { useEffect, useState } from "react";
 import { FlatList, Text, View } from "react-native";
@@ -13,7 +14,7 @@ export default function HistoryScreen() {
 
   const load = () => {
     const payments = db.getAllSync<any>(
-      "SELECT * FROM PAYMENTS WHERE YEAR_MONTH = ?",
+      "SELECT * FROM PAYMENTS WHERE YEAR_MONTH = ? ORDER BY CREATED_AT DESC",
       [getTargetYearMonth()],
     );
     setPayments(payments);
@@ -29,28 +30,60 @@ export default function HistoryScreen() {
   };
 
   const exportFile = async () => {
-    const fileUri = FileSystem.Paths.document + "expenses.json";
-    await FileSystem.writeAsStringAsync(fileUri, JSON.stringify(payments));
-    await Sharing.shareAsync(fileUri);
+    try {
+      const file = new File(Paths.cache, "kodukai_export.json");
+      // 1. 既存ファイル削除（あれば）
+      if (file.info().exists) {
+        file.delete();
+      }
+
+      // 2. ファイル書き込み
+      file.write(JSON.stringify(payments));
+
+      // 3. 共有可能かチェック（iOS対策）
+      const canShare = await Sharing.isAvailableAsync();
+      if (!canShare) {
+        throw new Error("Sharing is not available on this platform");
+      }
+
+      // 4. 共有
+      await Sharing.shareAsync(file.uri, {
+        mimeType: "application/json",
+        dialogTitle: "履歴データを共有",
+      });
+    } catch (e) {
+      console.error("share failed:", e);
+    }
   };
 
   const importFile = async () => {
-    const fileUri = FileSystem.Paths.document + "expenses.json";
-    const content = await FileSystem.readAsStringAsync(fileUri);
-    const json = JSON.parse(content);
+    try {
+      const result = await DocumentPicker.getDocumentAsync({
+        type: "application/json",
+        copyToCacheDirectory: true,
+      });
+      if (!result.canceled) {
+        const { uri } = result.assets[0];
+        const file = new File(uri);
+        const content = file.textSync();
+        const json = JSON.parse(content);
 
-    // 要トランザクション化
-    db.runSync("DELETE FROM PAYMENTS");
+        // 要トランザクション化
+        db.runSync("DELETE FROM PAYMENTS");
 
-    json.forEach((e: any) => {
-      db.runSync(
-        "INSERT INTO PAYMENTS (YEAR_MONTH, NAME, PRICE) VALUES (?, ?, ?)",
-        [e.YEAR_MONTH, e.NAME, e.PRICE],
-      );
-    });
-    // 要トランザクション化ここまで
+        json.forEach((e: any) => {
+          db.runSync(
+            "INSERT INTO PAYMENTS (YEAR_MONTH, NAME, PRICE, CREATED_AT) VALUES (?, ?, ?, ?)",
+            [e.YEAR_MONTH, e.NAME, e.PRICE, e.CREATED_AT],
+          );
+        });
+        // 要トランザクション化ここまで
 
-    load();
+        load();
+      }
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   function Divider() {

@@ -15,14 +15,14 @@ export default function App() {
     initDB();
 
     /*
-    const income = db.getFirstSync<any>(
-      "SELECT INCOME_PRICE FROM INCOME WHERE YEAR_MONTH = ?",
-      [yearMonth],
-    );
-    if (income) {
-      setIncome(Number(income.INCOME_PRICE));
+    // デバッグ用SQL
+    const table = db.getFirstSync<any>("PRAGMA table_info('FIXED_COSTS');");
+    if (table) {
+      console.log(table);
+    } else {
+      console.log("テーブルが存在しません");
     }
-      */
+    */
 
     setReady(true);
   }, []);
