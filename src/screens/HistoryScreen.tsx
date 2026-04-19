@@ -1,11 +1,12 @@
 import * as DocumentPicker from "expo-document-picker";
 import { File, Paths } from "expo-file-system";
 import * as Sharing from "expo-sharing";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { FlatList, Text, View } from "react-native";
 import { Button, IconButton } from "react-native-paper";
 import { db } from "../db/database";
 import { useYearMonth } from "../hooks/useYearMonth";
+import { useSnackbarStore } from "../stores/snackbarStore";
 
 export default function HistoryScreen() {
   const [payments, setPayments] = useState<any[]>([]);
@@ -20,6 +21,8 @@ export default function HistoryScreen() {
     setPayments(payments);
   };
 
+  const { showSnackbar } = useSnackbarStore();
+
   useEffect(() => {
     load();
   }, []);
@@ -31,7 +34,7 @@ export default function HistoryScreen() {
 
   const exportFile = async () => {
     try {
-      const file = new File(Paths.cache, "kodukai_export.json");
+      const file = new File(Paths.cache, "小遣い履歴.json");
       // 1. 既存ファイル削除（あれば）
       if (file.info().exists) {
         file.delete();
@@ -51,7 +54,13 @@ export default function HistoryScreen() {
         mimeType: "application/json",
         dialogTitle: "履歴データを共有",
       });
+
+      showSnackbar(
+        "「小遣い履歴.json」として履歴をエクスポートしました",
+        "success",
+      );
     } catch (e) {
+      showSnackbar("履歴のエクスポートに失敗しました", "error");
       console.error("share failed:", e);
     }
   };
@@ -79,9 +88,12 @@ export default function HistoryScreen() {
         });
         // 要トランザクション化ここまで
 
+        showSnackbar("履歴のインポートが完了しました", "success");
+
         load();
       }
     } catch (error) {
+      showSnackbar("履歴のインポートに失敗しました", "error");
       console.error(error);
     }
   };

@@ -85,7 +85,11 @@ export default function TopScreen() {
             追加
           </Button>
 
-          {budget === 0 && <Text>予算が設定されていません</Text>}
+          {budget === 0 && (
+            <Text style={{ color: "red" }}>
+              ※今月の収入が設定されていません
+            </Text>
+          )}
         </View>
       </View>
     </TouchableWithoutFeedback>

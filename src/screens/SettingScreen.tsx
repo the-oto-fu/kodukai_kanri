@@ -6,9 +6,10 @@ import {
   Text,
   View,
 } from "react-native";
-import { Button, IconButton, Snackbar, TextInput } from "react-native-paper";
+import { Button, IconButton, TextInput } from "react-native-paper";
 import { db } from "../db/database";
 import { useYearMonth } from "../hooks/useYearMonth";
+import { useSnackbarStore } from "../stores/snackbarStore";
 
 export default function BudgetScreen() {
   const [income, setIncome] = useState<number | undefined>(undefined);
@@ -20,11 +21,10 @@ export default function BudgetScreen() {
   const [fixedCosts, setFixedCosts] = useState<
     { ID: number; NAME: string; PRICE: number }[]
   >([]);
-  const [snackbarVisible, setSnackbarVisible] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState("");
   const [isAvoiding, setIsAvoiding] = useState(false);
 
   const { getTargetYearMonth } = useYearMonth();
+  const { showSnackbar } = useSnackbarStore();
 
   const load = () => {
     const dbIncome = db.getFirstSync<any>(
@@ -52,12 +52,6 @@ export default function BudgetScreen() {
     load();
   }, []);
 
-  // 👇 Snackbar表示ヘルパー
-  const showSnackbar = (message: string) => {
-    setSnackbarMessage(message);
-    setSnackbarVisible(true);
-  };
-
   const saveIncome = () => {
     Keyboard.dismiss();
     if (income !== undefined) {
@@ -67,7 +61,7 @@ export default function BudgetScreen() {
          DO UPDATE SET INCOME_PRICE = excluded.INCOME_PRICE`,
         [getTargetYearMonth(), income],
       );
-      showSnackbar("収入を保存しました");
+      showSnackbar("収入を保存しました", "success");
     }
   };
 
@@ -79,12 +73,12 @@ export default function BudgetScreen() {
       resetDay <= 0 ||
       resetDay > 31
     ) {
-      showSnackbar("リセット日は1〜31の数字で入力してください");
+      showSnackbar("リセット日は1〜31の数字で入力してください", "error");
       return;
     }
     db.runSync("DELETE FROM RESET_DAY;", [resetDay]);
     db.runSync("INSERT INTO RESET_DAY (DAY) VALUES (?)", [resetDay]);
-    showSnackbar("リセット日を保存しました");
+    showSnackbar("リセット日を保存しました", "success");
   };
 
   const addFixedCosts = () => {
@@ -98,7 +92,7 @@ export default function BudgetScreen() {
       setTmpFixedPrice(undefined);
 
       load();
-      showSnackbar("固定支出を追加しました");
+      showSnackbar("固定支出を追加しました", "success");
     }
   };
 
@@ -113,18 +107,6 @@ export default function BudgetScreen() {
       behavior="padding"
       style={{ flex: 1 }}
     >
-      <Snackbar
-        wrapperStyle={{ top: 1 }}
-        visible={snackbarVisible}
-        icon="check-circle-outline"
-        style={{ backgroundColor: "#4caf50" }}
-        onIconPress={() => setSnackbarVisible(false)}
-        onDismiss={() => setSnackbarVisible(false)}
-        duration={3000}
-      >
-        {snackbarMessage}
-      </Snackbar>
-
       {/* KeyboardAvoidingViewによって動く中身を格納するコンテナ */}
       <View style={{ flex: 1, justifyContent: "flex-end", overflow: "hidden" }}>
         <View style={{ padding: 20 }}>
@@ -158,7 +140,7 @@ export default function BudgetScreen() {
           <Text>リセット日</Text>
           <TextInput
             mode="outlined"
-            label="リセット日"
+            label="1〜31の数字"
             keyboardType="numeric"
             onFocus={() => setIsAvoiding(false)}
             value={resetDay === undefined ? "" : resetDay.toString()}
