@@ -29,7 +29,7 @@ export default function App() {
 
   return ready ? (
     <PaperProvider>
-      <View style={{ flex: 1 }}>
+      <View style={{ flex: 1, backgroundColor: "white" }}>
         {/* ヘッダー */}
         <Appbar.Header>
           <Appbar.Content title="お小遣い管理" />

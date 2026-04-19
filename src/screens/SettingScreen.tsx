@@ -88,6 +88,7 @@ export default function BudgetScreen() {
   };
 
   const addFixedCosts = () => {
+    Keyboard.dismiss();
     if (tmpFixedPrice !== undefined && tmpFixedName !== "") {
       db.runSync("INSERT INTO FIXED_COSTS (NAME, PRICE) VALUES (?, ?)", [
         tmpFixedName,
@@ -113,7 +114,11 @@ export default function BudgetScreen() {
       style={{ flex: 1 }}
     >
       <Snackbar
+        wrapperStyle={{ top: 1 }}
         visible={snackbarVisible}
+        icon="check-circle-outline"
+        style={{ backgroundColor: "#4caf50" }}
+        onIconPress={() => setSnackbarVisible(false)}
         onDismiss={() => setSnackbarVisible(false)}
         duration={3000}
       >
@@ -200,7 +205,7 @@ export default function BudgetScreen() {
           <Button
             mode="contained"
             onPress={addFixedCosts}
-            disabled={tmpFixedPrice === undefined}
+            disabled={tmpFixedPrice === undefined || tmpFixedName === ""}
             style={{ marginTop: 10 }}
           >
             追加
