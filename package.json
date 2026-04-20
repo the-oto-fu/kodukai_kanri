@@ -18,12 +18,12 @@
     "react": "19.1.0",
     "react-native": "0.81.5",
     "react-native-paper": "^5.15.0",
+    "react-native-typewriter": "^0.7.0",
     "react-native-vector-icons": "^10.3.0",
     "zustand": "^5.0.12"
   },
   "devDependencies": {
     "@types/react": "~19.1.0",
-    "@types/react-native-typewriter": "^0.7.4",
     "typescript": "~5.9.2"
   },
   "private": true
