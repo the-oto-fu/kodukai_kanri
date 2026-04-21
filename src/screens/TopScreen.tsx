@@ -3,13 +3,12 @@ import {
   Image,
   Keyboard,
   Pressable,
-  StyleSheet,
   Text,
   TouchableWithoutFeedback,
   View,
 } from "react-native";
 import { Button, TextInput } from "react-native-paper";
-import TypeWriter from "react-native-typewriter";
+import OsyaberiFukidashi from "../components/OsyaberiFukidashi";
 import { db } from "../db/database";
 import { useYearMonth } from "../hooks/useYearMonth";
 
@@ -102,43 +101,7 @@ export default function TopScreen() {
           )}
         </View>
 
-        <View
-          style={{
-            justifyContent: "flex-end",
-            height: 100,
-            paddingTop: 14,
-            alignItems: "center",
-          }}
-        >
-          {osyaberi && (
-            <View style={styles.balloonContainer}>
-              <View
-                style={[
-                  styles.balloonTriangleBase,
-                  styles.balloonTriangleOuter,
-                ]}
-              />
-              <View
-                style={[
-                  styles.balloonTriangleBase,
-                  styles.balloonTriangleInner,
-                ]}
-              />
-              <View style={styles.textContainer}>
-                <TypeWriter
-                  typing={1}
-                  style={{
-                    fontSize: 30,
-                    fontWeight: "bold",
-                    textAlign: "center",
-                  }}
-                >
-                  おはよう！！！
-                </TypeWriter>
-              </View>
-            </View>
-          )}
-        </View>
+        <OsyaberiFukidashi osyaberi={osyaberi} />
 
         <Pressable
           style={{ alignItems: "center" }}
@@ -153,35 +116,3 @@ export default function TopScreen() {
     </TouchableWithoutFeedback>
   );
 }
-
-const styles = StyleSheet.create({
-  balloonContainer: {
-    width: "90%",
-    backgroundColor: "#FFFFFF",
-    borderWidth: 2,
-    borderColor: "#000000cb",
-    borderRadius: 2,
-  },
-  balloonTriangleBase: {
-    width: 0,
-    height: 0,
-    position: "absolute",
-    top: "100%", // ← 下に出す
-    borderBottomColor: "transparent",
-    borderLeftColor: "transparent",
-    borderRightColor: "transparent",
-  },
-  balloonTriangleOuter: {
-    left: 99,
-    borderWidth: 15,
-    borderTopColor: "#000000cb", // ← 上に色をつける
-  },
-  balloonTriangleInner: {
-    left: 102,
-    borderWidth: 12,
-    borderTopColor: "#FFFFFF", // ← 内側
-  },
-  textContainer: {
-    padding: 15,
-  },
-});
