@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "kodukai_kanri",
-    "slug": "kodukai_kanri",
+    "name": "こづかい管理",
+    "slug": "kodukai",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -17,9 +17,14 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#ffff92"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": true,
+      "permissions": [
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE"
+      ],
+      "package": "com.otoufu.kodukai"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -33,6 +38,11 @@
         }
       ],
       "expo-sqlite"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "460ee7fa-f39a-4d2a-9f86-197aa24de958"
+      }
+    }
   }
 }
