@@ -14,6 +14,7 @@ const styles = StyleSheet.create({
     width: 0,
     height: 0,
     position: "absolute",
+    marginTop: -0.2,
     top: "100%", // ← 下に出す
     borderBottomColor: "transparent",
     borderLeftColor: "transparent",
