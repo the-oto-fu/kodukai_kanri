@@ -7,6 +7,7 @@ import TopScreen from "./src/screens/TopScreen";
 
 import {
   Appbar,
+  MD3LightTheme,
   Provider as PaperProvider,
   Snackbar,
 } from "react-native-paper";
@@ -41,7 +42,7 @@ export default function App() {
   }, []);
 
   return ready ? (
-    <PaperProvider>
+    <PaperProvider theme={MD3LightTheme}>
       <View style={{ flex: 1, backgroundColor: "white" }}>
         {/* ヘッダー */}
         <Appbar.Header>
