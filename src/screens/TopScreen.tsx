@@ -93,7 +93,9 @@ export default function TopScreen() {
           <Button mode="contained" onPress={addPayment}>
             追加
           </Button>
+        </View>
 
+        <View>
           {budget === 0 && (
             <Text style={{ color: "red" }}>
               ※今月の収入が設定されていません
