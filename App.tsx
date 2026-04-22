@@ -46,7 +46,7 @@ export default function App() {
       <View style={{ flex: 1, backgroundColor: "white" }}>
         {/* ヘッダー */}
         <Appbar.Header>
-          <Appbar.Content title="お小遣い管理" />
+          <Appbar.Content title="おこづかい管理" />
           <Appbar.Action icon="home" onPress={() => setScreen("top")} />
           <Appbar.Action icon="cog" onPress={() => setScreen("setting")} />
           <Appbar.Action icon="history" onPress={() => setScreen("history")} />
