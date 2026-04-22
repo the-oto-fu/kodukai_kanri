@@ -1,16 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { View } from "react-native";
-import { initDB } from "./src/db/database";
-import HistoryScreen from "./src/screens/HistoryScreen";
-import BudgetScreen from "./src/screens/SettingScreen";
-import TopScreen from "./src/screens/TopScreen";
-
 import {
   Appbar,
   MD3LightTheme,
   Provider as PaperProvider,
   Snackbar,
 } from "react-native-paper";
+import { initDB } from "./src/db/database";
+import HistoryScreen from "./src/screens/HistoryScreen";
+import BudgetScreen from "./src/screens/SettingScreen";
+import TopScreen from "./src/screens/TopScreen";
 import { useSnackbarStore } from "./src/stores/snackbarStore";
 
 export default function App() {
@@ -20,7 +19,8 @@ export default function App() {
   const {
     snackbarVisible,
     snackbarMessage,
-    snackbarColor,
+    snackbarBackGroundColor,
+    snackbarTextColor,
     snackbarIcon,
     hideSnackbar,
   } = useSnackbarStore();
@@ -30,7 +30,7 @@ export default function App() {
 
     /*
     // デバッグ用SQL
-    const table = db.getFirstSync<any>("PRAGMA table_info('FIXED_COSTS');");
+    const table = db.runSync("DELETE FROM INCOME;");
     if (table) {
       console.log(table);
     } else {
@@ -62,10 +62,15 @@ export default function App() {
             wrapperStyle={{ top: 1 }}
             visible={snackbarVisible}
             icon={snackbarIcon}
-            style={{ backgroundColor: snackbarColor }}
             onIconPress={() => hideSnackbar()}
             onDismiss={() => hideSnackbar()}
             duration={3000}
+            theme={{
+              colors: {
+                inverseSurface: snackbarBackGroundColor,
+                inverseOnSurface: snackbarTextColor,
+              },
+            }}
           >
             {snackbarMessage}
           </Snackbar>

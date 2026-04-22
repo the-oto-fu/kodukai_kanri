@@ -2,11 +2,18 @@ import { create } from "zustand";
 
 const snackbarDetail = {
   success: {
-    color: "green",
+    backgroundColor: "green",
+    textColor: "white",
     icon: "check-circle-outline",
   },
+  warn: {
+    backgroundColor: "yellow",
+    textColor: "black",
+    icon: "alert-circle-outline",
+  },
   error: {
-    color: "red",
+    backgroundColor: "red",
+    textColor: "white",
     icon: "alert-circle-outline",
   },
 };
@@ -14,29 +21,33 @@ const snackbarDetail = {
 type SnackbarState = {
   snackbarVisible: boolean;
   snackbarMessage: string;
-  snackbarColor: string;
+  snackbarBackGroundColor: string | undefined;
+  snackbarTextColor: string | undefined;
   snackbarIcon: string;
-  showSnackbar: (message: string, type: "success" | "error") => void;
+  showSnackbar: (message: string, type: "success" | "warn" | "error") => void;
   hideSnackbar: () => void;
 };
 
 export const useSnackbarStore = create<SnackbarState>((set) => ({
   snackbarVisible: false,
   snackbarMessage: "",
-  snackbarColor: "",
+  snackbarBackGroundColor: "",
+  snackbarTextColor: "",
   snackbarIcon: "",
   showSnackbar: (message, type) =>
     set({
       snackbarVisible: true,
       snackbarMessage: message,
-      snackbarColor: snackbarDetail[type].color,
+      snackbarBackGroundColor: snackbarDetail[type].backgroundColor,
+      snackbarTextColor: snackbarDetail[type].textColor,
       snackbarIcon: snackbarDetail[type].icon,
     }),
   hideSnackbar: () =>
     set({
       snackbarVisible: false,
       snackbarMessage: "",
-      snackbarColor: "",
+      snackbarBackGroundColor: undefined,
+      snackbarTextColor: undefined,
       snackbarIcon: "",
     }),
 }));

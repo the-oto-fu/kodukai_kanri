@@ -11,6 +11,7 @@ import { Button, TextInput } from "react-native-paper";
 import OsyaberiFukidashi from "../components/OsyaberiFukidashi";
 import { db } from "../db/database";
 import { useYearMonth } from "../hooks/useYearMonth";
+import { useSnackbarStore } from "../stores/snackbarStore";
 
 export default function TopScreen() {
   const [budget, setBudget] = useState(0);
@@ -19,6 +20,7 @@ export default function TopScreen() {
   const [osyaberi, setOsyaberi] = useState(false);
 
   const { getTargetYearMonth } = useYearMonth();
+  const { showSnackbar } = useSnackbarStore();
 
   const load = () => {
     const targertYearMonth = getTargetYearMonth();
@@ -28,7 +30,13 @@ export default function TopScreen() {
       "SELECT INCOME_PRICE FROM INCOME WHERE YEAR_MONTH = ?",
       [targertYearMonth],
     );
-    const incomePrice = income ? income.INCOME_PRICE : 0;
+    let incomePrice;
+    if (income) {
+      incomePrice = income.INCOME_PRICE;
+    } else {
+      incomePrice = 0;
+      showSnackbar("今月の収入が設定されていません", "warn");
+    }
 
     // 固定費の合計を取得
     const fixedCosts = db.getAllSync<any>("SELECT PRICE FROM FIXED_COSTS");
@@ -93,14 +101,6 @@ export default function TopScreen() {
           <Button mode="contained" onPress={addPayment}>
             追加
           </Button>
-        </View>
-
-        <View>
-          {budget === 0 && (
-            <Text style={{ color: "red" }}>
-              ※今月の収入が設定されていません
-            </Text>
-          )}
         </View>
 
         <OsyaberiFukidashi osyaberi={osyaberi} />
