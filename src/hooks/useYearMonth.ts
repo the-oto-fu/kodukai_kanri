@@ -17,6 +17,10 @@ export const useYearMonth = () => {
   // 今月に対応するYYYY-MMの形の文字列
   const nowYearMonth = convertStringYYhyphenMM(workDate);
 
+  // 来月の月を設定するために、日を1日に設定してから月を進める
+  // 例えば、2024-01-31のような日付の場合、
+  // 月を進める前に日を1日に設定しておかないと、2024-02-31となり、2024-03-02のように月が2つ進んでしまうため
+  workDate.setDate(1);
   workDate.setMonth(workDate.getMonth() + 1);
   // 来月に対応するYYYY-MMの形の文字列
   const nextYearMonth = convertStringYYhyphenMM(workDate);
